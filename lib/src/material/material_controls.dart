@@ -17,12 +17,10 @@ import 'package:video_player/video_player.dart';
 class MaterialControls extends StatefulWidget {
   const MaterialControls({
     this.showPlayButton = true,
-    this.onTabTaggingNote = null,
     super.key,
   });
 
   final bool showPlayButton;
-  final Function()? onTabTaggingNote;
 
   @override
   State<StatefulWidget> createState() {
@@ -152,7 +150,6 @@ class _MaterialControlsState extends State<MaterialControls>
           duration: const Duration(milliseconds: 250),
           child: Row(
             children: [
-              _buildTaggingNote(),
               _buildSubtitleToggle(),
               if (chewieController.showOptions) _buildOptionsButton(),
             ],
@@ -466,27 +463,6 @@ class _MaterialControlsState extends State<MaterialControls>
           _subtitleOn
               ? Icons.closed_caption
               : Icons.closed_caption_off_outlined,
-          color: _subtitleOn ? Colors.white : Colors.grey[700],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTaggingNote() {
-    if (widget.onTabTaggingNote == null) {
-      return const SizedBox();
-    }
-    return GestureDetector(
-      onTap: widget.onTabTaggingNote,
-      child: Container(
-        height: barHeight,
-        color: Colors.transparent,
-        padding: const EdgeInsets.only(
-          left: 12.0,
-          right: 12.0,
-        ),
-        child: Icon(
-          Icons.note_alt_sharp,
           color: _subtitleOn ? Colors.white : Colors.grey[700],
         ),
       ),
