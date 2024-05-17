@@ -23,6 +23,7 @@ class CupertinoControls extends StatefulWidget {
     required this.iconColor,
     this.showPlayButton = true,
     this.airPlayButton = null,
+    this.onTabTaggingNote = null,
     super.key,
   });
 
@@ -30,6 +31,7 @@ class CupertinoControls extends StatefulWidget {
   final Color iconColor;
   final bool showPlayButton;
   final dynamic airPlayButton;
+  final Function()? onTabTaggingNote;
 
   @override
   State<StatefulWidget> createState() {
@@ -85,6 +87,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
     final iconColor = widget.iconColor;
     final orientation = MediaQuery.of(context).orientation;
     final airPlayButton = Platform.isAndroid ? null : widget.airPlayButton;
+    final onTaggingNote = widget.onTabTaggingNote;
     final barHeight = orientation == Orientation.portrait ? 30.0 : 47.0;
     final buttonPadding = orientation == Orientation.portrait ? 16.0 : 24.0;
 
@@ -106,7 +109,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   _buildTopBar(backgroundColor, iconColor, barHeight,
-                      buttonPadding, airPlayButton),
+                      buttonPadding, airPlayButton, onTaggingNote),
                   const Spacer(),
                   if (_subtitleOn)
                     Transform.translate(
@@ -369,6 +372,36 @@ class _CupertinoControlsState extends State<CupertinoControls>
     );
   }
 
+  GestureDetector _buildTaggingNote(Color backgroundColor, Color iconColor,
+      double barHeight, double buttonPadding, Function()? onTabTaggingNote) {
+    return GestureDetector(
+      onTap: onTabTaggingNote,
+      child: AnimatedOpacity(
+        opacity: notifier.hideStuff ? 0.0 : 1.0,
+        duration: const Duration(milliseconds: 300),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10.0),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 10.0),
+            child: Container(
+              height: barHeight,
+              padding: EdgeInsets.only(
+                left: buttonPadding,
+                right: buttonPadding,
+              ),
+              color: backgroundColor,
+              child: Center(child: Icon(
+                CupertinoIcons.tags_solid,
+                color: iconColor,
+                size: 16,
+              )),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildHitArea() {
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     final bool showPlayButton =
@@ -617,7 +650,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
   }
 
   Widget _buildTopBar(Color backgroundColor, Color iconColor, double barHeight,
-      double buttonPadding, dynamic airPlayButton) {
+      double buttonPadding, dynamic airPlayButton, Function()? onTaggingNote) {
     return Container(
       height: barHeight,
       margin: EdgeInsets.only(
@@ -642,6 +675,9 @@ class _CupertinoControlsState extends State<CupertinoControls>
             _buildAirplayButton(backgroundColor, iconColor, barHeight,
                 buttonPadding, airPlayButton),
           const Spacer(),
+          if(onTaggingNote == null) _buildTaggingNote(backgroundColor, iconColor, barHeight,
+              buttonPadding, onTaggingNote),
+          const SizedBox(width: 8,),
           if (chewieController.allowMuting)
             _buildMuteButton(
               controller,
