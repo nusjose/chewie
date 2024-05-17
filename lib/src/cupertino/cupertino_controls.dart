@@ -31,7 +31,7 @@ class CupertinoControls extends StatefulWidget {
   final Color iconColor;
   final bool showPlayButton;
   final dynamic airPlayButton;
-  final Function()? onTabTaggingNote;
+  final dynamic onTabTaggingNote;
 
   @override
   State<StatefulWidget> createState() {
@@ -373,7 +373,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
   }
 
   GestureDetector _buildTaggingNote(Color backgroundColor, Color iconColor,
-      double barHeight, double buttonPadding, Function()? onTabTaggingNote) {
+      double barHeight, double buttonPadding, dynamic onTabTaggingNote) {
     return GestureDetector(
       onTap: onTabTaggingNote,
       child: AnimatedOpacity(
@@ -650,7 +650,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
   }
 
   Widget _buildTopBar(Color backgroundColor, Color iconColor, double barHeight,
-      double buttonPadding, dynamic airPlayButton, Function()? onTaggingNote) {
+      double buttonPadding, dynamic airPlayButton, dynamic onTaggingNote) {
     return Container(
       height: barHeight,
       margin: EdgeInsets.only(
@@ -675,7 +675,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
             _buildAirplayButton(backgroundColor, iconColor, barHeight,
                 buttonPadding, airPlayButton),
           const Spacer(),
-          if(onTaggingNote == null) _buildTaggingNote(backgroundColor, iconColor, barHeight,
+          if(onTaggingNote != null) _buildTaggingNote(backgroundColor, iconColor, barHeight,
               buttonPadding, onTaggingNote),
           const SizedBox(width: 8,),
           if (chewieController.allowMuting)
