@@ -22,8 +22,8 @@ class CupertinoControls extends StatefulWidget {
     required this.backgroundColor,
     required this.iconColor,
     this.showPlayButton = true,
-    this.airPlayButton = null,
-    this.onTabTaggingNote = null,
+    this.airPlayButton,
+    this.onTabTaggingNote,
     super.key,
   });
 

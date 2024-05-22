@@ -110,50 +110,54 @@ class _ChewieDemoState extends State<ChewieDemo> {
     ];
 
     _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController1,
-      autoPlay: true,
-      looping: true,
-      progressIndicatorDelay:
-          bufferDelay != null ? Duration(milliseconds: bufferDelay!) : null,
+        videoPlayerController: _videoPlayerController1,
+        autoPlay: true,
+        looping: true,
+        progressIndicatorDelay:
+            bufferDelay != null ? Duration(milliseconds: bufferDelay!) : null,
+        additionalOptions: (context) {
+          return <OptionItem>[
+            OptionItem(
+              onTap: toggleVideo,
+              iconData: Icons.live_tv_sharp,
+              title: 'Toggle Video Src',
+            ),
+          ];
+        },
+        subtitle: Subtitles(subtitles),
+        subtitleBuilder: (context, dynamic subtitle) => Container(
+              padding: const EdgeInsets.all(10.0),
+              child: subtitle is InlineSpan
+                  ? RichText(
+                      text: subtitle,
+                    )
+                  : Text(
+                      subtitle.toString(),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+            ),
+        hideControlsTimer: const Duration(seconds: 1),
+        customControls: CupertinoControls(
+          // onTabTaggingNote: () {
+          //   print("_--------onTabTaggingNote");
+          // },
+          backgroundColor: Colors.black,
+          iconColor: Colors.white,
+        )
+        // Try playing around with some of these other options:
 
-      additionalOptions: (context) {
-        return <OptionItem>[
-          OptionItem(
-            onTap: toggleVideo,
-            iconData: Icons.live_tv_sharp,
-            title: 'Toggle Video Src',
-          ),
-        ];
-      },
-      subtitle: Subtitles(subtitles),
-      subtitleBuilder: (context, dynamic subtitle) => Container(
-        padding: const EdgeInsets.all(10.0),
-        child: subtitle is InlineSpan
-            ? RichText(
-                text: subtitle,
-              )
-            : Text(
-                subtitle.toString(),
-                style: const TextStyle(color: Colors.black),
-              ),
-      ),
-
-      hideControlsTimer: const Duration(seconds: 1),
-
-      // Try playing around with some of these other options:
-
-      // showControls: false,
-      // materialProgressColors: ChewieProgressColors(
-      //   playedColor: Colors.red,
-      //   handleColor: Colors.blue,
-      //   backgroundColor: Colors.grey,
-      //   bufferedColor: Colors.lightGreen,
-      // ),
-      // placeholder: Container(
-      //   color: Colors.grey,
-      // ),
-      // autoInitialize: true,
-    );
+        // showControls: false,
+        // materialProgressColors: ChewieProgressColors(
+        //   playedColor: Colors.red,
+        //   handleColor: Colors.blue,
+        //   backgroundColor: Colors.grey,
+        //   bufferedColor: Colors.lightGreen,
+        // ),
+        // placeholder: Container(
+        //   color: Colors.grey,
+        // ),
+        // autoInitialize: true,
+        );
   }
 
   int currPlayIndex = 0;
