@@ -22,14 +22,18 @@ class CupertinoControls extends StatefulWidget {
     required this.backgroundColor,
     required this.iconColor,
     this.showPlayButton = true,
+    this.showCustomProgressBar = false,
+    this.duration = 0.0,
     this.airPlayButton,
     this.onTabTaggingNote,
     super.key,
   });
 
+  final double duration;
   final Color backgroundColor;
   final Color iconColor;
   final bool showPlayButton;
+  final bool showCustomProgressBar;
   final dynamic airPlayButton;
   final dynamic onTabTaggingNote;
 
@@ -55,6 +59,8 @@ class _CupertinoControlsState extends State<CupertinoControls>
   bool _displayBufferingIndicator = false;
   double selectedSpeed = 1.0;
   late VideoPlayerController controller;
+
+  double sliderDuration = 0.0;
 
   // We know that _chewieController is set in didChangeDependencies
   ChewieController get chewieController => _chewieController!;
@@ -390,7 +396,8 @@ class _CupertinoControlsState extends State<CupertinoControls>
                 right: buttonPadding,
               ),
               color: backgroundColor,
-              child: Center(child: Icon(
+              child: Center(
+                  child: Icon(
                 CupertinoIcons.tags_solid,
                 color: iconColor,
                 size: 16,
@@ -498,7 +505,6 @@ class _CupertinoControlsState extends State<CupertinoControls>
 
   Widget _buildPosition(Color iconColor) {
     final position = _latestValue.position;
-
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: Text(
@@ -675,9 +681,12 @@ class _CupertinoControlsState extends State<CupertinoControls>
             _buildAirplayButton(backgroundColor, iconColor, barHeight,
                 buttonPadding, airPlayButton),
           const Spacer(),
-          if(onTaggingNote != null) _buildTaggingNote(backgroundColor, iconColor, barHeight,
-              buttonPadding, onTaggingNote),
-          const SizedBox(width: 8,),
+          if (onTaggingNote != null)
+            _buildTaggingNote(backgroundColor, iconColor, barHeight,
+                buttonPadding, onTaggingNote),
+          const SizedBox(
+            width: 8,
+          ),
           if (chewieController.allowMuting)
             _buildMuteButton(
               controller,
@@ -735,56 +744,76 @@ class _CupertinoControlsState extends State<CupertinoControls>
 
   Widget _buildProgressBar() {
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(right: 12.0),
-        child: CupertinoVideoProgressBar(
-          controller,
-          onDragStart: () {
-            setState(() {
-              _dragging = true;
-            });
-
-            _hideTimer?.cancel();
-          },
-          onDragUpdate: () {
-            _hideTimer?.cancel();
-          },
-          onDragEnd: () {
-            setState(() {
-              _dragging = false;
-            });
-
-            _startHideTimer();
-          },
-          colors: chewieController.cupertinoProgressColors ??
-              ChewieProgressColors(
-                playedColor: const Color.fromARGB(
-                  120,
-                  255,
-                  255,
-                  255,
-                ),
-                handleColor: const Color.fromARGB(
-                  255,
-                  255,
-                  255,
-                  255,
-                ),
-                bufferedColor: const Color.fromARGB(
-                  60,
-                  255,
-                  255,
-                  255,
-                ),
-                backgroundColor: const Color.fromARGB(
-                  20,
-                  255,
-                  255,
-                  255,
-                ),
+      child: widget.showCustomProgressBar == true
+          ? SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                  trackHeight: 3,
+                  thumbShape: const RoundSliderThumbShape(
+                      pressedElevation: 2.0, enabledThumbRadius: 6.0),
+                  thumbColor: Colors.white),
+              child: Slider(
+                min: widget.duration,
+                max: controller.value.duration.inMilliseconds.toDouble(),
+                value: sliderDuration,
+                inactiveColor: const Color.fromRGBO(200, 200, 200, 0.5),
+                activeColor: const Color.fromRGBO(200, 200, 200, 1),
+                onChanged: (value) {
+                  setState(() {
+                    controller.seekTo(Duration(milliseconds: value.toInt()));
+                  });
+                },
               ),
-        ),
-      ),
+            )
+          : Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: CupertinoVideoProgressBar(
+                controller,
+                onDragStart: () {
+                  setState(() {
+                    _dragging = true;
+                  });
+
+                  _hideTimer?.cancel();
+                },
+                onDragUpdate: () {
+                  _hideTimer?.cancel();
+                },
+                onDragEnd: () {
+                  setState(() {
+                    _dragging = false;
+                  });
+
+                  _startHideTimer();
+                },
+                colors: chewieController.cupertinoProgressColors ??
+                    ChewieProgressColors(
+                      playedColor: const Color.fromARGB(
+                        120,
+                        255,
+                        255,
+                        255,
+                      ),
+                      handleColor: const Color.fromARGB(
+                        255,
+                        255,
+                        255,
+                        255,
+                      ),
+                      bufferedColor: const Color.fromARGB(
+                        60,
+                        255,
+                        255,
+                        255,
+                      ),
+                      backgroundColor: const Color.fromARGB(
+                        20,
+                        255,
+                        255,
+                        255,
+                      ),
+                    ),
+              ),
+            ),
     );
   }
 
@@ -877,6 +906,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
     }
 
     setState(() {
+      sliderDuration = controller.value.position.inMilliseconds.toDouble();
       _latestValue = controller.value;
       _subtitlesPosition = controller.value.position;
     });

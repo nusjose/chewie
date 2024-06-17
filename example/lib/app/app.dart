@@ -25,6 +25,7 @@ class _ChewieDemoState extends State<ChewieDemo> {
   late VideoPlayerController _videoPlayerController2;
   ChewieController? _chewieController;
   int? bufferDelay;
+  double? duration;
 
   @override
   void initState() {
@@ -111,8 +112,8 @@ class _ChewieDemoState extends State<ChewieDemo> {
 
     _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController1,
-        autoPlay: true,
-        looping: true,
+        autoPlay: false,
+        looping: false,
         progressIndicatorDelay:
             bufferDelay != null ? Duration(milliseconds: bufferDelay!) : null,
         additionalOptions: (context) {
@@ -136,11 +137,12 @@ class _ChewieDemoState extends State<ChewieDemo> {
                       style: const TextStyle(color: Colors.black),
                     ),
             ),
-        hideControlsTimer: const Duration(seconds: 1),
+        hideControlsTimer: const Duration(seconds: 20),
         customControls: CupertinoControls(
-          // onTabTaggingNote: () {
-          //   print("_--------onTabTaggingNote");
-          // },
+          onTabTaggingNote: () {
+            print("_--------onTabTaggingNote");
+          },
+          showCustomProgressBar: true,
           backgroundColor: Colors.black,
           iconColor: Colors.white,
         )
