@@ -748,7 +748,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
           ? Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
-              color: Colors.red,
+              color: Colors.transparent,
               child: Center(
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
