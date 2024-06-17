@@ -142,7 +142,7 @@ class _ChewieDemoState extends State<ChewieDemo> {
           onTabTaggingNote: () {
             print("_--------onTabTaggingNote");
           },
-          showCustomProgressBar: true,
+          showCustomProgressBar:  true,
           backgroundColor: Colors.black,
           iconColor: Colors.white,
         )

@@ -745,23 +745,31 @@ class _CupertinoControlsState extends State<CupertinoControls>
   Widget _buildProgressBar() {
     return Expanded(
       child: widget.showCustomProgressBar == true
-          ? SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                  trackHeight: 3,
-                  thumbShape: const RoundSliderThumbShape(
-                      pressedElevation: 2.0, enabledThumbRadius: 6.0),
-                  thumbColor: Colors.white),
-              child: Slider(
-                min: widget.duration,
-                max: controller.value.duration.inMilliseconds.toDouble(),
-                value: sliderDuration,
-                inactiveColor: const Color.fromRGBO(200, 200, 200, 0.5),
-                activeColor: const Color.fromRGBO(200, 200, 200, 1),
-                onChanged: (value) {
-                  setState(() {
-                    controller.seekTo(Duration(milliseconds: value.toInt()));
-                  });
-                },
+          ? Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              color: Colors.red,
+              child: Center(
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                      trackHeight: 3,
+                      thumbShape: const RoundSliderThumbShape(
+                          pressedElevation: 2.0, enabledThumbRadius: 6.0),
+                      thumbColor: Colors.white),
+                  child: Slider(
+                    min: widget.duration,
+                    max: controller.value.duration.inMilliseconds.toDouble(),
+                    value: sliderDuration,
+                    inactiveColor: const Color.fromRGBO(200, 200, 200, 0.5),
+                    activeColor: const Color.fromRGBO(200, 200, 200, 1),
+                    onChanged: (value) {
+                      setState(() {
+                        controller
+                            .seekTo(Duration(milliseconds: value.toInt()));
+                      });
+                    },
+                  ),
+                ),
               ),
             )
           : Padding(
