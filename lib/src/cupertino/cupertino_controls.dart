@@ -23,13 +23,15 @@ class CupertinoControls extends StatefulWidget {
     required this.iconColor,
     this.showPlayButton = true,
     this.showCustomProgressBar = false,
-    this.duration = 0.0,
+    this.startDuration,
+    this.endDuration,
     this.airPlayButton,
     this.onTabTaggingNote,
     super.key,
   });
 
-  final double duration;
+  final Duration? startDuration;
+  final Duration? endDuration;
   final Color backgroundColor;
   final Color iconColor;
   final bool showPlayButton;
@@ -410,7 +412,12 @@ class _CupertinoControlsState extends State<CupertinoControls>
   }
 
   Widget _buildHitArea() {
-    final bool isFinished = _latestValue.position >= _latestValue.duration;
+    Duration end = widget.showCustomProgressBar
+        ? widget.endDuration ?? _latestValue.duration
+        : _latestValue.duration;
+
+    final bool isFinished = _latestValue.position >= end;
+
     final bool showPlayButton =
         widget.showPlayButton && !_latestValue.isPlaying && !_dragging;
 
@@ -504,7 +511,8 @@ class _CupertinoControlsState extends State<CupertinoControls>
   }
 
   Widget _buildPosition(Color iconColor) {
-    final position = _latestValue.position;
+    final position = _latestValue.position -
+        (widget.startDuration ?? const Duration(seconds: 0));
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: Text(
@@ -518,8 +526,11 @@ class _CupertinoControlsState extends State<CupertinoControls>
   }
 
   Widget _buildRemaining(Color iconColor) {
-    final position = _latestValue.duration - _latestValue.position;
-
+    Duration totalDuration = widget.showCustomProgressBar
+        ? (widget.endDuration ?? _latestValue.duration) +
+            (widget.startDuration ?? const Duration(seconds: 0))
+        : _latestValue.duration;
+    final position = totalDuration - _latestValue.position;
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: Text(
@@ -753,20 +764,31 @@ class _CupertinoControlsState extends State<CupertinoControls>
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                       trackHeight: 3,
+                      overlayShape: SliderComponentShape.noOverlay,
                       thumbShape: const RoundSliderThumbShape(
                           pressedElevation: 2.0, enabledThumbRadius: 6.0),
                       thumbColor: Colors.white),
                   child: Slider(
-                    min: widget.duration,
-                    max: controller.value.duration.inMilliseconds.toDouble(),
+                    min: 0.0,
+                    max: widget.showCustomProgressBar
+                        ? (widget.endDuration ?? _latestValue.duration)
+                            .inMilliseconds
+                            .toDouble()
+                        : controller.value.duration.inMilliseconds.toDouble(),
                     value: sliderDuration,
                     inactiveColor: const Color.fromRGBO(200, 200, 200, 0.5),
                     activeColor: const Color.fromRGBO(200, 200, 200, 1),
+                    onChangeStart: (value) {
+                      controller.pause();
+                    },
                     onChanged: (value) {
                       setState(() {
                         controller
                             .seekTo(Duration(milliseconds: value.toInt()));
                       });
+                    },
+                    onChangeEnd: (value) {
+                      // controller.play();
                     },
                   ),
                 ),
@@ -826,7 +848,11 @@ class _CupertinoControlsState extends State<CupertinoControls>
   }
 
   void _playPause() {
-    final isFinished = _latestValue.position >= _latestValue.duration;
+    Duration end = widget.showCustomProgressBar
+        ? widget.endDuration ?? _latestValue.duration
+        : _latestValue.duration;
+
+    final isFinished = _latestValue.position >= end;
 
     setState(() {
       if (controller.value.isPlaying) {
@@ -842,7 +868,9 @@ class _CupertinoControlsState extends State<CupertinoControls>
           });
         } else {
           if (isFinished) {
-            controller.seekTo(Duration.zero);
+            controller.seekTo(widget.showCustomProgressBar
+                ? widget.startDuration ?? const Duration(seconds: 0)
+                : Duration.zero);
           }
           controller.play();
         }
@@ -853,8 +881,14 @@ class _CupertinoControlsState extends State<CupertinoControls>
   Future<void> _skipBack() async {
     _cancelAndRestartTimer();
     final beginning = Duration.zero.inMilliseconds;
-    final skip =
+    final timeSkip =
         (_latestValue.position - const Duration(seconds: 15)).inMilliseconds;
+
+    final skip = (timeSkip <=
+            (widget.startDuration ?? const Duration(seconds: 0)).inMilliseconds
+        ? (widget.startDuration ?? const Duration(seconds: 0)).inMilliseconds
+        : timeSkip);
+
     await controller.seekTo(Duration(milliseconds: math.max(skip, beginning)));
     // Restoring the video speed to selected speed
     // A delay of 1 second is added to ensure a smooth transition of speed after reversing the video as reversing is an asynchronous function
@@ -865,9 +899,14 @@ class _CupertinoControlsState extends State<CupertinoControls>
 
   Future<void> _skipForward() async {
     _cancelAndRestartTimer();
-    final end = _latestValue.duration.inMilliseconds;
-    final skip =
+    final end = widget.showCustomProgressBar
+        ? (widget.endDuration ?? _latestValue.duration).inMilliseconds
+        : _latestValue.duration.inMilliseconds;
+
+    final timeSkip =
         (_latestValue.position + const Duration(seconds: 15)).inMilliseconds;
+
+    final skip = (timeSkip >= end ? end : timeSkip);
     await controller.seekTo(Duration(milliseconds: math.min(skip, end)));
     // Restoring the video speed to selected speed
     // A delay of 1 second is added to ensure a smooth transition of speed after forwarding the video as forwaring is an asynchronous function
@@ -913,8 +952,32 @@ class _CupertinoControlsState extends State<CupertinoControls>
       _displayBufferingIndicator = controller.value.isBuffering;
     }
 
+    double currentPosition = (controller.value.position.inMilliseconds -
+            (widget.startDuration ?? const Duration(seconds: 0)).inMilliseconds)
+        .toDouble();
+
+    double currentDuration = (widget.showCustomProgressBar
+            ? (widget.endDuration ?? _latestValue.duration).inMilliseconds
+            : controller.value.duration.inMilliseconds)
+        .toDouble();
+
+    print("==========init $currentPosition $currentDuration");
+    if (widget.showCustomProgressBar) {
+      if (currentPosition >= currentDuration) {
+        setState(() {
+          sliderDuration = currentDuration;
+        });
+        notifier.hideStuff = false;
+        _hideTimer?.cancel();
+        controller.pause();
+      } else {
+        setState(() {
+          sliderDuration = currentPosition;
+        });
+      }
+    }
+
     setState(() {
-      sliderDuration = controller.value.position.inMilliseconds.toDouble();
       _latestValue = controller.value;
       _subtitlesPosition = controller.value.position;
     });

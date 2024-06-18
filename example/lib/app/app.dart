@@ -138,11 +138,14 @@ class _ChewieDemoState extends State<ChewieDemo> {
                     ),
             ),
         hideControlsTimer: const Duration(seconds: 20),
+        startAt: const Duration(seconds: 5),
         customControls: CupertinoControls(
           onTabTaggingNote: () {
             print("_--------onTabTaggingNote");
           },
-          showCustomProgressBar:  true,
+          startDuration: const Duration(seconds: 5),
+          endDuration: const Duration(seconds: 10),
+          showCustomProgressBar: true,
           backgroundColor: Colors.black,
           iconColor: Colors.white,
         )
@@ -191,8 +194,11 @@ class _ChewieDemoState extends State<ChewieDemo> {
                 child: _chewieController != null &&
                         _chewieController!
                             .videoPlayerController.value.isInitialized
-                    ? Chewie(
-                        controller: _chewieController!,
+                    ? AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: Chewie(
+                          controller: _chewieController!,
+                        ),
                       )
                     : const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
