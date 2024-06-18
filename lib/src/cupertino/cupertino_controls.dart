@@ -63,6 +63,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
   late VideoPlayerController controller;
 
   double sliderDuration = 0.0;
+  bool isTouchable = false;
 
   // We know that _chewieController is set in didChangeDependencies
   ChewieController get chewieController => _chewieController!;
@@ -757,6 +758,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
     return Expanded(
       child: widget.showCustomProgressBar == true
           ? Container(
+              padding: const EdgeInsets.only(right: 12.0),
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               color: Colors.transparent,
@@ -778,17 +780,20 @@ class _CupertinoControlsState extends State<CupertinoControls>
                     value: sliderDuration,
                     inactiveColor: const Color.fromRGBO(200, 200, 200, 0.5),
                     activeColor: const Color.fromRGBO(200, 200, 200, 1),
-                    onChangeStart: (value) {
-                      controller.pause();
-                    },
                     onChanged: (value) {
                       setState(() {
-                        controller
-                            .seekTo(Duration(milliseconds: value.toInt()));
+                        isTouchable = true;
+                        sliderDuration = value;
+                        controller.seekTo(
+                            Duration(milliseconds: value.toInt()) +
+                                (widget.startDuration ??
+                                    const Duration(seconds: 0)));
                       });
                     },
                     onChangeEnd: (value) {
-                      // controller.play();
+                      setState(() {
+                        isTouchable = false;
+                      });
                     },
                   ),
                 ),
@@ -952,17 +957,19 @@ class _CupertinoControlsState extends State<CupertinoControls>
       _displayBufferingIndicator = controller.value.isBuffering;
     }
 
-    double currentPosition = (controller.value.position.inMilliseconds -
-            (widget.startDuration ?? const Duration(seconds: 0)).inMilliseconds)
-        .toDouble();
+    if (widget.showCustomProgressBar && !isTouchable) {
+      double currentPosition = (controller.value.position.inMilliseconds -
+              (widget.startDuration ?? const Duration(seconds: 0))
+                  .inMilliseconds)
+          .toDouble();
 
-    double currentDuration = (widget.showCustomProgressBar
-            ? (widget.endDuration ?? _latestValue.duration).inMilliseconds
-            : controller.value.duration.inMilliseconds)
-        .toDouble();
+      double currentDuration = (widget.showCustomProgressBar
+              ? (widget.endDuration ?? _latestValue.duration).inMilliseconds
+              : controller.value.duration.inMilliseconds)
+          .toDouble();
 
-    print("==========init $currentPosition $currentDuration");
-    if (widget.showCustomProgressBar) {
+      print("==========init $currentPosition $currentDuration");
+
       if (currentPosition >= currentDuration) {
         setState(() {
           sliderDuration = currentDuration;
