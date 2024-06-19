@@ -886,8 +886,13 @@ class _CupertinoControlsState extends State<CupertinoControls>
   Future<void> _skipBack() async {
     _cancelAndRestartTimer();
     final beginning = Duration.zero.inMilliseconds;
-    final timeSkip =
-        (_latestValue.position - const Duration(seconds: 15)).inMilliseconds;
+
+    final start = widget.showCustomProgressBar
+        ? _latestValue.position -
+            (widget.startDuration ?? const Duration(seconds: 0))
+        : _latestValue.position;
+
+    final timeSkip = (start - const Duration(seconds: 15)).inMilliseconds;
 
     final skip = (timeSkip <=
             (widget.startDuration ?? const Duration(seconds: 0)).inMilliseconds
@@ -908,8 +913,12 @@ class _CupertinoControlsState extends State<CupertinoControls>
         ? (widget.endDuration ?? _latestValue.duration).inMilliseconds
         : _latestValue.duration.inMilliseconds;
 
-    final timeSkip =
-        (_latestValue.position + const Duration(seconds: 15)).inMilliseconds;
+    final start = widget.showCustomProgressBar
+        ? _latestValue.position -
+            (widget.startDuration ?? const Duration(seconds: 0))
+        : _latestValue.position;
+
+    final timeSkip = (start + const Duration(seconds: 15)).inMilliseconds;
 
     final skip = (timeSkip >= end ? end : timeSkip);
     await controller.seekTo(Duration(milliseconds: math.min(skip, end)));
