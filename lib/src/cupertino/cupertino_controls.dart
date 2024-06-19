@@ -888,8 +888,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
     final beginning = Duration.zero.inMilliseconds;
 
     final start = widget.showCustomProgressBar
-        ? _latestValue.position -
-            (widget.startDuration ?? const Duration(seconds: 0))
+        ? Duration(milliseconds: sliderDuration.toInt())
         : _latestValue.position;
 
     final timeSkip = (start - const Duration(seconds: 15)).inMilliseconds;
@@ -914,12 +913,11 @@ class _CupertinoControlsState extends State<CupertinoControls>
         : _latestValue.duration.inMilliseconds;
 
     final start = widget.showCustomProgressBar
-        ? _latestValue.position -
-            (widget.startDuration ?? const Duration(seconds: 0))
+        ? Duration(milliseconds: sliderDuration.toInt())
         : _latestValue.position;
 
     final timeSkip = (start + const Duration(seconds: 15)).inMilliseconds;
-
+    
     final skip = (timeSkip >= end ? end : timeSkip);
     await controller.seekTo(Duration(milliseconds: math.min(skip, end)));
     // Restoring the video speed to selected speed
