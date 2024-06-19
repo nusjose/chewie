@@ -146,6 +146,10 @@ class _CupertinoControlsState extends State<CupertinoControls>
 
   void _dispose() {
     controller.removeListener(_updateState);
+    setState(() {
+      isTouchable = false;
+      sliderDuration = 0.0;
+    });
     _hideTimer?.cancel();
     _expandCollapseTimer?.cancel();
     _initTimer?.cancel();
@@ -956,20 +960,16 @@ class _CupertinoControlsState extends State<CupertinoControls>
     } else {
       _displayBufferingIndicator = controller.value.isBuffering;
     }
+    double currentPosition = (controller.value.position.inMilliseconds -
+            (widget.startDuration ?? const Duration(seconds: 0)).inMilliseconds)
+        .toDouble();
 
-    if (widget.showCustomProgressBar && !isTouchable) {
-      double currentPosition = (controller.value.position.inMilliseconds -
-              (widget.startDuration ?? const Duration(seconds: 0))
-                  .inMilliseconds)
-          .toDouble();
-
-      double currentDuration = (widget.showCustomProgressBar
-              ? (widget.endDuration ?? _latestValue.duration).inMilliseconds
-              : controller.value.duration.inMilliseconds)
-          .toDouble();
-
-      print("==========init $currentPosition $currentDuration");
-
+    double currentDuration = (widget.showCustomProgressBar
+            ? (widget.endDuration ?? _latestValue.duration).inMilliseconds
+            : controller.value.duration.inMilliseconds)
+        .toDouble();
+    
+    if (widget.showCustomProgressBar && !isTouchable && currentPosition > 0.0) {
       if (currentPosition >= currentDuration) {
         setState(() {
           sliderDuration = currentDuration;
