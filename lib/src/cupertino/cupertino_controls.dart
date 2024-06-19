@@ -146,10 +146,6 @@ class _CupertinoControlsState extends State<CupertinoControls>
 
   void _dispose() {
     controller.removeListener(_updateState);
-    setState(() {
-      isTouchable = false;
-      sliderDuration = 0.0;
-    });
     _hideTimer?.cancel();
     _expandCollapseTimer?.cancel();
     _initTimer?.cancel();
@@ -968,7 +964,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
             ? (widget.endDuration ?? _latestValue.duration).inMilliseconds
             : controller.value.duration.inMilliseconds)
         .toDouble();
-    
+
     if (widget.showCustomProgressBar && !isTouchable && currentPosition > 0.0) {
       if (currentPosition >= currentDuration) {
         setState(() {
