@@ -42,6 +42,7 @@ class _ChewieDemoState extends State<ChewieDemo> {
   }
 
   List<String> srcs = [
+    "https://footage-cdn.varsityhype.com/a8a41d01-da0c-43d4-8ff6-61349d65f9a7/h264.mpd",
     "https://assets.mixkit.co/videos/preview/mixkit-spinning-around-the-earth-29351-large.mp4",
     "https://assets.mixkit.co/videos/preview/mixkit-daytime-city-traffic-aerial-view-56-large.mp4",
     "https://assets.mixkit.co/videos/preview/mixkit-a-girl-blowing-a-bubble-gum-at-an-amusement-park-1226-large.mp4"
@@ -138,13 +139,13 @@ class _ChewieDemoState extends State<ChewieDemo> {
                     ),
             ),
         hideControlsTimer: const Duration(seconds: 20),
-        startAt: const Duration(seconds: 5),
+        startAt: const Duration(seconds: 309),
         customControls: CupertinoControls(
           onTabTaggingNote: () {
             print("_--------onTabTaggingNote");
           },
-          startDuration: const Duration(seconds: 5),
-          endDuration: const Duration(seconds: 10),
+          startDuration: const Duration(seconds: 309),
+          endDuration: const Duration(seconds: 365 - 309),
           showCustomProgressBar: true,
           backgroundColor: Colors.black,
           iconColor: Colors.white,

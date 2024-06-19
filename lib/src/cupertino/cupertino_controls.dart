@@ -417,7 +417,10 @@ class _CupertinoControlsState extends State<CupertinoControls>
         ? widget.endDuration ?? _latestValue.duration
         : _latestValue.duration;
 
-    final bool isFinished = _latestValue.position >= end;
+    final bool isFinished = (widget.showCustomProgressBar
+            ? Duration(milliseconds: sliderDuration.toInt())
+            : _latestValue.position) >=
+        end;
 
     final bool showPlayButton =
         widget.showPlayButton && !_latestValue.isPlaying && !_dragging;
@@ -857,7 +860,10 @@ class _CupertinoControlsState extends State<CupertinoControls>
         ? widget.endDuration ?? _latestValue.duration
         : _latestValue.duration;
 
-    final isFinished = _latestValue.position >= end;
+    final isFinished = (widget.showCustomProgressBar
+            ? Duration(milliseconds: sliderDuration.toInt())
+            : _latestValue.position) >=
+        end;
 
     setState(() {
       if (controller.value.isPlaying) {
@@ -893,12 +899,9 @@ class _CupertinoControlsState extends State<CupertinoControls>
 
     final timeSkip = (start - const Duration(seconds: 15)).inMilliseconds;
 
-    final skip = (timeSkip <=
-            (widget.startDuration ?? const Duration(seconds: 0)).inMilliseconds
-        ? (widget.startDuration ?? const Duration(seconds: 0)).inMilliseconds
-        : timeSkip);
-
-    await controller.seekTo(Duration(milliseconds: math.max(skip, beginning)));
+    await controller.seekTo(
+        Duration(milliseconds: math.max(timeSkip, beginning)) +
+            (widget.startDuration ?? const Duration(seconds: 0)));
     // Restoring the video speed to selected speed
     // A delay of 1 second is added to ensure a smooth transition of speed after reversing the video as reversing is an asynchronous function
     Future.delayed(const Duration(milliseconds: 1000), () {
@@ -917,9 +920,11 @@ class _CupertinoControlsState extends State<CupertinoControls>
         : _latestValue.position;
 
     final timeSkip = (start + const Duration(seconds: 15)).inMilliseconds;
-    
+
     final skip = (timeSkip >= end ? end : timeSkip);
-    await controller.seekTo(Duration(milliseconds: math.min(skip, end)));
+
+    await controller.seekTo(Duration(milliseconds: math.min(skip, end)) +
+        (widget.startDuration ?? const Duration(seconds: 0)));
     // Restoring the video speed to selected speed
     // A delay of 1 second is added to ensure a smooth transition of speed after forwarding the video as forwaring is an asynchronous function
     Future.delayed(const Duration(milliseconds: 1000), () {
